@@ -13,3 +13,5 @@ Contents:
 - `randomize_pokedex.pl`: Shuffles the short (`SEED`, `FLAME`, etc) and long (`While it is young, ...`) pokedex descriptions of each pokemon.
 - `read_colors.pl`: Reads the color palette of each pokemon and outputs it as html to `stdout`. You can pipe it to an html file and view it in your browser. This was useful for me while testing the palette randomizer, and it could be fun if you just want to explore the pokemon color palettes, since it's kind of cool how all the art is just done with 2 colors + white + black.
 - `pokemon.txt`: This is just a list of pokemon names. It's an auxiliary file used by `randomize_names.pl` and `read_colors.pl`.
+
+All these scripts can be run from the command line. The first parameter should be the input ROM, and the second parameter should be the output ROM. (except `read_colors`, where the input is the ROM and the output is just printed to the console.)
