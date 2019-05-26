@@ -4,6 +4,7 @@ use v5.010;
 use List::Util qw/sum shuffle/;
 use Data::Dumper;
 use File::Copy;
+use MIME::Base64;
 
 use constant NAMES_START => 0x053384;
 use constant MAX_NAME_LEN => 10;
@@ -146,12 +147,24 @@ copy($inrom, $outrom) or die "Couldn't create output ROM file $outrom: $!.\n";
 open my $OUT, "+<", $outrom;
 binmode($OUT);
 
+sub capitalize_after {
+    my ($char, @words) = @_;
+    return map { join $char, @$_ } map { [ map { ucfirst $_ } @$_ ] } map { [ split $char, $_ ] } @words;
+}
+
 @newwords = grep { length $_ <= MAX_NAME_LEN } @newwords;
-@newwords = map { join ' ', @$_ } map { [ map { ucfirst $_ } @$_ ] } map { [ split / /, $_ ] } @newwords;
-@newwords = map { join '-', @$_ } map { [ map { ucfirst $_ } @$_ ] } map { [ split /-/, $_ ] } @newwords;
-@newwords = grep { $_ !~ /fag|nig|cunt|tard/ } @newwords; # some bad words aren't very funny :(
+@newwords = capitalize_after ' ', @newwords;
+@newwords = capitalize_after '-', @newwords;
+
+# some bad words aren't very funny, like racial/etc slurs
+# but i don't want people seeing such words on my github page
+# so i just base64'd them. you can decode them if you're curious which words i banned
+my $badwords = decode_base64('ZmFnfG5pZ3xjdW50fHRhcmQ=');
+@newwords = grep { $_ !~ /$badwords/ } @newwords;
+
 @newwords = grep { $_ !~ /tr$/ } @newwords; # 'feraligatr' is dumb due to text limits
 @newwords = grep { $_ !~ /ncc/ } @newwords; # 'minccino' etc don't work well here
+@newwords = grep { $_ !~ /rrl/ } @newwords; # likewise 'purrloin'
 @newwords = grep { $_ !~ /:/ } @newwords; # 'type: null' I think is weird (up to you I guess)
 
 @newwords = shuffle @newwords;
