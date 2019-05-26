@@ -2,7 +2,7 @@
 
 use v5.012;
 use File::Copy;
-use List::Util qw/max min/;
+use List::Util qw/max min any/;
 use POSIX;
 
 my $inrom = $ARGV[0] or die "please specify a rom file to scramble; usage: $0 <infile> <outfile>\n";
@@ -20,23 +20,44 @@ for my $index (0..250) {
 
     my @newnums;
     #my $hueshift = rand() * 360;
+    print $index + 1, " Y: ";
     for my $num (@nums) {
-        my ($h, $s, $v) = rgb_to_hsv(fifteen_to_rgb($num));
-        my $orig_h = $h;
+        #my ($h, $s, $v) = rgb_to_hsv(fifteen_to_rgb($num));
+        #my $orig_h = $h;
 
-        my $shiftamt = rand() * 330 + 15;
-        say $shiftamt;
-        $h += $shiftamt;
+        #my $shiftamt = rand() * 330 + 15;
+        #$h += $shiftamt;
         #$h += $hueshift;
-        $h %= 360;
+        #$h %= 360;
 
-        #say sprintf "%02X %02X %02X", hsv_to_rgb($h, $s, $v);
-        my $newcolor = rgb_to_fifteen(hsv_to_rgb($h, $s, $v));
+        my ($y, $i, $q) = rgb_to_yiq(fifteen_to_rgb($num));
+
+        printf "rgb: %02x%02x%02x ; ", fifteen_to_rgb($num);
+
+        printf "yiq: %.3f %.3f %.3f ; ", $y, $i, $q;
+
+        my ($newI, $newQ, @newrgb);
+        do {
+            my $angle = rand() * 6.28;
+            ($newI, $newQ) = (rand() * sin $angle, rand() * cos $angle);
+            @newrgb = yiq_to_rgb($y, $newI, $newQ);
+        } while (any { $_ < 0 or $_ > 255 } @newrgb or dist($i, $q, $newI, $newQ) < 0.15);
+        printf "newRGB: %02x%02x%02x; %d %d %d\n", @newrgb, @newrgb;
+
+        printf "yiq of newrgb: %.3f %.3f %.3f\n", rgb_to_yiq(@newrgb);
+
+        my $newcolor = rgb_to_fifteen(@newrgb);
         push @newnums, $newcolor;
     }
+    print "\n";
 
     seek $rom, 0xa8d6 + $index * 8, 0;
-    print {$rom} pack "SSSS", @newnums;
+    print { $rom } pack "SSSS", @newnums;
+}
+
+sub dist {
+    my ($a, $b, $c, $d) = @_;
+    return sqrt (($a - $c) ** 2 + ($b - $d) ** 2);
 }
 
 sub fifteen_to_rgb {
@@ -56,18 +77,42 @@ sub fifteen_to_rgb {
 sub rgb_to_fifteen {
     my ($r, $g, $b) = @_;
 
-    my $sR = ceil($r / 8);
-    my $sG = ceil($g / 8);
-    my $sB = ceil($b / 8);
+    my $sR = floor($r / 8);
+    my $sG = floor($g / 8);
+    my $sB = floor($b / 8);
 
     return (($sB & 0x1f) << 10) | (($sG & 0x1f) << 5) | ($sR & 0x1f);
+}
+
+# we'll use YIQ to extract the luma value (Y), so we (hopefully) end up with
+# colors of a similar brightness to the original
+sub rgb_to_yiq {
+    my ($r, $g, $b) = @_;
+
+    $r /= 255; $g /= 255; $b /= 255;
+
+    return (0.299  * $r + 0.587  * $g + 0.114  * $b,
+            0.5959 * $r - 0.2746 * $g - 0.3213 * $b,
+            0.2115 * $r - 0.5227 * $g + 0.3112 * $b);
+}
+
+sub yiq_to_rgb {
+    sub yiq_conversion {
+        my ($y, $i, $q) = @_;
+        return ($y + 0.956 * $i + 0.619 * $q,
+                $y - 0.272 * $i - 0.647 * $q,
+                $y - 1.106 * $i + 1.703 * $q);
+    }
+
+    my @result = yiq_conversion @_;
+    return map { 255 * $_ } @result;
 }
 
 # ported from: https://www.cs.rit.edu/~ncs/color/t_convert.html
 sub rgb_to_hsv {
     my ($r, $g, $b) = @_;
 
-    $r /= 256; $g /= 256; $b /= 256;
+    $r /= 255; $g /= 255; $b /= 255;
 
     my ($h, $s, $v);
 
@@ -110,7 +155,7 @@ sub rgb_to_hsv {
 }
 
 sub hsv_to_rgb {
-    sub conversion {
+    sub hsv_conversion {
         my ($h, $s, $v) = @_;
 
         if ($s == 0) {
@@ -143,6 +188,6 @@ sub hsv_to_rgb {
         }
     }
 
-    my ($r, $g, $b) = conversion @_;
-    return ($r * 256, $g * 256, $b * 256);
+    my ($r, $g, $b) = hsv_conversion @_;
+    return ($r * 255, $g * 255, $b * 255);
 }
