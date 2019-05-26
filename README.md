@@ -9,7 +9,7 @@ Contents:
 
 - `randomize_names.pl`: Constructs random pokemon names using a silly algorithm I wrote based on the C/V pattern of existing pokemon names. It's sort of hard to explain but works better than it seems like it should.
 - `randomize_palette_shuffle.pl`: Independently shuffles the first (light) and second (dark) colors of the pokemon palettes and shiny palettes.
-- `randomize_palette_hue.pl`: Randomly alters the HSV hue of the colors of the pokemon palettes, trying to ensure it's not too similar to the original colors (since it's disappointing in the shuffle version when you just end up with a really similar color.)
+- `randomize_palette_hue.pl`: Randomly alters the hue of the colors of the pokemon palettes, trying to ensure it's not too similar to the original colors (since it's disappointing in the shuffle version when you just end up with a really similar color.) Preserves the luma (i.e. brightness) of the original color by using the [YIQ](https://en.wikipedia.org/wiki/YIQ) color space.
 - `randomize_pokedex.pl`: Shuffles the short (`SEED`, `FLAME`, etc) and long (`While it is young, ...`) pokedex descriptions of each pokemon.
 - `read_colors.pl`: Reads the color palette of each pokemon and outputs it as html to `stdout`. You can pipe it to an html file and view it in your browser. This was useful for me while testing the palette randomizer, and it could be fun if you just want to explore the pokemon color palettes, since it's kind of cool how all the art is just done with 2 colors + white + black.
 - `pokemon.txt`: This is just a list of pokemon names. It's an auxiliary file used by `randomize_names.pl` and `read_colors.pl`.
