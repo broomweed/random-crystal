@@ -110,6 +110,7 @@ sub zip {
 # Shuffle.
 @longdex = shuffle @longdex;
 @shortdex = shuffle @shortdex;
+@extradex = shuffle @extradex;
 
 # Create output file
 copy($inrom, $outrom) or die "Couldn't create output ROM file $outrom: $!.\n";

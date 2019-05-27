@@ -160,7 +160,7 @@ sub capitalize_after {
 # but i don't want people seeing such words on my github page
 # so i just base64'd them. you can decode them if you're curious which words i banned
 my $badwords = decode_base64('ZmFnfG5pZ3xjdW50fHRhcmQ=');
-@newwords = grep { $_ !~ /$badwords/ } @newwords;
+@newwords = grep { $_ !~ /$badwords/i } @newwords;
 
 @newwords = grep { $_ !~ /tr$/ } @newwords; # 'feraligatr' is dumb due to text limits
 @newwords = grep { $_ !~ /ncc/ } @newwords; # 'minccino' etc don't work well here
