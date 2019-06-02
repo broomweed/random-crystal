@@ -39,7 +39,7 @@ for my $index (0..250) {
         my ($newI, $newQ, @newrgb);
         do {
             my $angle = rand() * 6.28;
-            ($newI, $newQ) = (rand() * sin $angle, rand() * cos $angle);
+            ($newI, $newQ) = (rand() ** (2/3) * sin $angle, rand() ** (2/3) * cos $angle);
             @newrgb = yiq_to_rgb($y, $newI, $newQ);
         } while (any { $_ < 0 or $_ > 255 } @newrgb or dist($i, $q, $newI, $newQ) < 0.15);
         printf "newRGB: %02x%02x%02x; %d %d %d\n", @newrgb, @newrgb;
