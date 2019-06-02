@@ -20,7 +20,7 @@ All these scripts can be run from the command line. The first parameter should b
 
 ## Screenshots
 
-!['crondell' sounds like a homestar runner character](images/enbolgode.png)
+!['crondell' sounds like a homestar runner character](images/crondell.png)
 ![it thinks '2' is a consonant so that's kind of fun](images/chersun2.png)
 ![birds with tongues freak me out](images/enbolgode.png)
 ![it evolves into electoralvictreebell, obviously](images/pollsprout.png)
