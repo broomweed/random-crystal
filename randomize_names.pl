@@ -44,10 +44,8 @@ for my $word (@words) {
     $word =~ s/♂/*/g;
     $word =~ s/’d/\^/g;
 
-    #next if $word =~ /[^a-z]/;
-
-    # Things we can't really handle
-    next if $word =~ /qu/;
+    # Handle qu as if it was a single consonant
+    $word =~ s/qu/Q/g;
 
     my @wordparts = split /([aeiouy%]+)/, $word;
 
@@ -172,6 +170,8 @@ sub capitalize_after {
     return map { join $char, @$_ } map { [ map { ucfirst $_ } @$_ ] } map { [ split $char, $_ ] } @words;
 }
 
+@newwords = map { s/Q/qu/gr } @newwords;
+
 # some bad words aren't very funny, like racial/etc slurs
 # but i don't want people seeing such words on my github page
 # so i just base64'd them. you can decode them if you're curious which words i banned
@@ -184,9 +184,10 @@ my $badwords = decode_base64('ZmFnfG5pZ3xjdW50fHRhcmR8cmFwZQ==');
 @newwords = grep { $_ !~ /ktr/ } @newwords; # 'eelektrik' is weird spelled on purpose
 @newwords = grep { $_ !~ /:/ } @newwords; # 'type: null' I think is weird (up to you I guess)
 @newwords = grep { $_ !~ /[ui]w/ } @newwords; # bad clusters
+@newwords = grep { $_ !~ /quu/ } @newwords; # obviously bad
 @newwords = grep { $_ !~ /[^aeiouy][^aeiouyl]e$/ } @newwords; # silent e looks bad after consonant clusters
 @newwords = grep { $_ !~ /e[^aeiouy]e$/ } @newwords; # unclear how to pronounce these
-@newwords = grep { $_ !~ /rir|lir|rur|lul/ } @newwords; # weird sequence
+@newwords = grep { $_ !~ /rir|rur|rer|lul/ } @newwords; # weird sequence
 
 @newwords = grep { length $_ <= MAX_NAME_LEN } @newwords;
 @newwords = capitalize_after ' ', @newwords;
