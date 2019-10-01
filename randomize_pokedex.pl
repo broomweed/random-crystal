@@ -12,36 +12,6 @@ my @DEX_OFFSETS = (0x17c000, 0x1b4000, 0x1c8000, 0x1cc000);
 
 my @INITIAL_OFFSETS = (0x5695, 0x4000, 0x4000, 0x4000);
 
-my %CHARTABLE = (
-    '@' => 0xF5, # female symbol
-    '*' => 0xEF, # male symbol
-    '%' => 0xEA, # é
-    '^' => 0xD0, # 'd
-    '.' => 0xF2,
-    '-' => 0xE3,
-    ' ' => 0x7F,
-    '|' => 0x50,
-);
-
-my $byte = 0x80;
-
-for my $i ('A'..'Z', '(', ')', ':', ';', '[', ']', 'a'..'z') {
-    $CHARTABLE{$i} = $byte;
-    $byte ++;
-}
-
-$byte = 0xF6;
-
-for my $i ('0', '1'..'9') {
-    $CHARTABLE{$i} = $byte;
-    $byte ++;
-}
-
-my %REV;
-for my $k (keys %CHARTABLE) {
-    $REV{$CHARTABLE{$k}} = $k;
-}
-
 # Extract pokedex info
 my $inrom = $ARGV[0] or die "please specify a rom file to scramble; usage: $0 <infile> <outfile>\n";
 my $outrom = $ARGV[1] or die "please specify an output file; usage: $0 <infile> <outfile>\n";

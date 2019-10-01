@@ -6,6 +6,8 @@ use Data::Dumper;
 use File::Copy;
 use MIME::Base64;
 
+use CharTable;
+
 use constant NAMES_START => 0x053384;
 use constant MAX_NAME_LEN => 10;
 
@@ -130,29 +132,6 @@ sub weight_rand {
 }
 
 # insert into ROM
-my %CHARTABLE = (
-    '@' => 0xF5, # female symbol
-    '*' => 0xEF, # male symbol
-    '%' => 0xEA, # é
-    '^' => 0xD0, # 'd
-    '.' => 0xF2,
-    '-' => 0xE3,
-    ' ' => 0x7F,
-);
-
-my $byte = 0x80;
-
-for my $i ('A'..'Z', '(', ')', ':', ';', '[', ']', 'a'..'z') {
-    $CHARTABLE{$i} = $byte;
-    $byte ++;
-}
-
-$byte = 0xF6;
-
-for my $i ('0', '1'..'9') {
-    $CHARTABLE{$i} = $byte;
-    $byte ++;
-}
 
 my $usage = "usage: $0 <infile> <outfile> [--weird=<number>]\n" .
             "       weird: amplify uncommon name parts. default is 0.5";
@@ -202,7 +181,7 @@ if (@newwords < 251) {
 }
 
 for my $index (0..255) {
-    my @bytes = map { $CHARTABLE{$_} } split '', $newwords[$index];
+    my @bytes = map { $Table::Byte{$_} } split '', $newwords[$index];
 
     push @bytes, 0x50 while @bytes < MAX_NAME_LEN;
 
