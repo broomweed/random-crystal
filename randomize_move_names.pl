@@ -12,23 +12,22 @@ use CharTable;
 use constant MOVE_NAMES_START => 0x1c9f29;
 use constant MOVE_NAMES_END   => 0x1ca895;
 
-my $usage = "usage: $0 <infile> <outfile> [--weird=<number>]\n" .
-            "       weird: amplify uncommon name parts. default is 0.5";
+use constant MIN_NAME_LENGTH  => 4;
+use constant MAX_NAME_LENGTH  => 12;
+
+my $usage = "usage: $0 <infile> <outfile>\n";
 
 my $inrom = $ARGV[0] or die "please specify a rom file to scramble\n$usage";
 my $outrom = $ARGV[1] or die "please specify an output file\n$usage";
 
 my %words;
 
-my %used;
-
-for my $type ('P', '!', 'N', 'A', 'v', 'i', 't', 'V') {
+for my $type ('i', 'P', 'A', 'N', 't') { # hehe iPant
     open my $file, "<", "txt/MOBY_$type.txt";
     $words{$type} = [];
     while (my $w = <$file>) {
         chomp $w;
-        push @{$words{$type}}, $w unless exists $used{$w};
-        #$used{$w} = 1 unless $type eq 't' or $type eq 'i';
+        push @{$words{$type}}, $w;
     }
 }
 
@@ -43,27 +42,24 @@ for my $type ('P', '!', 'N', 'A', 'v', 'i', 't', 'V') {
 # Ni = noun intransitive-verb (dragon/petal/etc dance, sleep talk, defense curl, etc -- v rare)
 # iP/tP = verb preposition (beat up, take down, slack off, lock on, etc -- v rare)
 
-my @formulas = qw(iP AN AN AN AN Nt Nt Nt Nt Nt Nt t t t t t t i i i i i i N N N N N N A A NN NN NN NN Ni);
+my @formulas = qw(tP AN AN AN AN Nt Nt Nt Nt Nt Nt t t t t t t i i i i i i N N N N N N A A NN NN NN NN Ni);
 
 sub make_move {
     my $result;
     my $formula;
 
+    $formula = $formulas[rand @formulas];
+
     do {
-        $formula = $formulas[rand @formulas];
-        my $count = 0;
-        do {
-            $count ++;
-            $result = '';
+        $result = '';
 
-            for my $piece (split //, $formula) {
-                # pick a random word from that category of formula
-                $result .= $words{$piece}[rand @{$words{$piece}}] . ' ';
-            }
+        for my $piece (split //, $formula) {
+            # pick a random word from that category of formula
+            $result .= $words{$piece}[rand @{$words{$piece}}] . ' ';
+        }
 
-            chop $result;
-        } while (((length $result) > 12 or (length $result) < 4) and $count < 50);
-    } while ((length $result) > 12 or (length $result) < 4);
+        chop $result;
+    } while ((length $result) > MAX_NAME_LENGTH or (length $result) < MIN_NAME_LENGTH);
 
     return (uc $result);
 }
@@ -73,8 +69,9 @@ my @newmoves;
 do {
     @newmoves = ();
     push @newmoves, make_move for 1..251;
-    #say "total length: ", (sum map { (length $_) + 1 } @newmoves), " vs ", MOVE_NAMES_END - MOVE_NAMES_START;
 } while ((sum map { (length $_) + 1 } @newmoves) > MOVE_NAMES_END - MOVE_NAMES_START);
+
+say for @newmoves;
 
 # so... the way it determines what the name of a given move is, is that it
 # literally just starts at the address of the first move and reads forward,
