@@ -105,8 +105,7 @@ for my $i (0..$#oldtypes) {
 # (Yes, there are 17 types in gen 2. But $#oldtypes == 18? So there are 19?
 # Turns out, there's also a ??? type (used only for the move Curse) and an
 # unused BIRD type (returning from gen. 1 for... backwards compatibility,
-# I guess?) We could probably change BIRD to an empty string to gain a few
-# more bytes. Future work?
+# I guess?) We can change BIRD to an empty string to gain a few more bytes.
 # Also, I've chosen to preserve the ??? type. I don't know if that's the right
 # choice. I guess the right choice depends on whether or not we're randomizing
 # type effects as well, if stuff is going to end up being ??? type, etc.
